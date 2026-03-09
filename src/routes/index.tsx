@@ -1,11 +1,20 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { styled } from '@linaria/react'
+import { createFileRoute } from "@tanstack/react-router";
+import { Navbar } from "../components/Navbar";
+import { Hero } from "../components/Hero";
+import { Projects } from "../components/Projects";
 
-const Title = styled.h1`
-  color: hotpink;
-  font-size: 3rem;
-`
+export const Route = createFileRoute("/")({
+  component: HomePage,
+});
 
-export const Route = createFileRoute('/')({
-  component: () => <Title>Hello</Title>,
-})
+function HomePage() {
+  return (
+    <>
+      <Navbar />
+      <main>
+        <Hero />
+        <Projects />
+      </main>
+    </>
+  );
+}

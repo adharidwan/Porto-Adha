@@ -1,6 +1,5 @@
 import { defineConfig } from 'vite'
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
-import react from '@vitejs/plugin-react'
 import linaria from '@linaria/vite'
 import mdx from '@mdx-js/rollup'
 import remarkMath from 'remark-math'
@@ -26,8 +25,6 @@ export default defineConfig({
         ],
       }),
     },
-
-    react(),
   ],
 
   css: {

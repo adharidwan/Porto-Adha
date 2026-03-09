@@ -1,17 +1,134 @@
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+/* ── Google Fonts ─────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,600&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-base: #0a0a0a;
+  --bg-surface: #0f0f0f;
+  --bg-elevated: #161616;
+  --text-primary: #f5f7fb;
+  --text-soft: rgba(245, 247, 251, 0.72);
+  --text-muted: rgba(245, 247, 251, 0.5);
+  --text-dim: rgba(245, 247, 251, 0.35);
+  --line-subtle: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.16);
+  --interactive-bg: rgba(255, 255, 255, 0.08);
+
+  --hero-bg-1: #0a0a0a;
+  --hero-bg-2: #0d0d0d;
+  --hero-bg-3: #111111;
+  --hero-bg-4: #141414;
+  --hero-vignette-1: rgba(255, 255, 255, 0.03);
+  --hero-vignette-2: rgba(255, 255, 255, 0.02);
+  --hero-photo-grad-1: #1a1a1a;
+  --hero-photo-grad-2: #222222;
+  --hero-photo-grad-3: #1c1c1c;
+  --hero-photo-shadow:
+    0 2px 0 rgba(255, 255, 255, 0.08) inset,
+    0 40px 80px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(255, 255, 255, 0.07);
+
+  --wave-stop-top: #0a0a0a;
+  --wave-stop-bottom: #0f0f0f;
+  --wave-layer-1: rgba(255, 255, 255, 0.015);
+  --wave-layer-2: rgba(20, 20, 20, 0.6);
+  --wave-layer-3: #0f0f0f;
+  --wave-base: #0f0f0f;
+
+  --upcoming-bg: #0f0f0f;
+  --font-display: 'Syne', sans-serif;
+  --font-mono: 'DM Mono', monospace;
 }
 
-html {
-  font-size: 16px;
-  -webkit-font-smoothing: antialiased;
+:root[data-theme='light'] {
+  --bg-base: #f2f5fb;
+  --bg-surface: #ffffff;
+  --bg-elevated: #f6f8fd;
+  --text-primary: #0f1420;
+  --text-soft: rgba(15, 20, 32, 0.78);
+  --text-muted: rgba(15, 20, 32, 0.62);
+  --text-dim: rgba(15, 20, 32, 0.45);
+  --line-subtle: rgba(15, 20, 32, 0.14);
+  --line-strong: rgba(15, 20, 32, 0.25);
+  --interactive-bg: rgba(15, 20, 32, 0.08);
+
+  --hero-bg-1: #f3f6fd;
+  --hero-bg-2: #edf2fb;
+  --hero-bg-3: #e6ecf8;
+  --hero-bg-4: #dde6f5;
+  --hero-vignette-1: rgba(15, 20, 32, 0.05);
+  --hero-vignette-2: rgba(15, 20, 32, 0.04);
+  --hero-photo-grad-1: #f8faff;
+  --hero-photo-grad-2: #eef3ff;
+  --hero-photo-grad-3: #e8eefb;
+  --hero-photo-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 24px 50px rgba(28, 40, 74, 0.18),
+    0 0 0 1px rgba(15, 20, 32, 0.12);
+
+  --wave-stop-top: #edf2fb;
+  --wave-stop-bottom: #e6ecf8;
+  --wave-layer-1: rgba(15, 20, 32, 0.08);
+  --wave-layer-2: rgba(157, 174, 210, 0.4);
+  --wave-layer-3: #dfe8f7;
+  --wave-base: #dfe8f7;
+
+  --upcoming-bg: #e6ecf8;
 }
 
-body {
-  font-family: system-ui, sans-serif;
-  line-height: 1.6;
-  background: #0a0a0a;
-  color: #e8e4dc;
+@keyframes hero-fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes hero-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes hero-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes hero-float-card {
+  0%, 100% { transform: translateY(0px) rotate(1.5deg); }
+  50% { transform: translateY(-10px) rotate(1.5deg); }
+}
+
+@keyframes hero-wave-move {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes nav-fade-down {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+html { font-size: 17px; scroll-behavior: smooth; scroll-padding-top: 84px; -webkit-font-smoothing: antialiased; }
+body { background: var(--bg-base); color: var(--text-primary); font-family: var(--font-mono); overflow-x: hidden; transition: background-color 0.25s ease, color 0.25s ease; -webkit-overflow-scrolling: touch; }
+::selection { background: var(--interactive-bg); color: var(--text-primary); }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--line-subtle); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--line-strong); }
+
+.upcoming-section {
+  min-height: 100vh;
+  background: var(--upcoming-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  letter-spacing: 0.15em;
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: 16px;
+  }
 }
