@@ -226,6 +226,7 @@ const MobileThemeRow = styled.div`
 const NAV_LINKS = [
   { label: "Projects",   to: "#projects" },
   { label: "Blogs",   to: "#blogs"     },
+  { label: "Honors", to: "#honors" },
   { label: "Experience", to: "#experience" },
 ];
 

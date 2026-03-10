@@ -1,118 +1,17 @@
 import { styled } from "@linaria/react";
+import { Link } from "@tanstack/react-router";
+import { ENTRIES, SKILL_GROUPS, type Entry, type EntryType } from "../content/experiences";
 
-type EntryType = "Experience" | "Volunteer";
-
-interface Entry {
-	role: string;
-	org: string;
-	period: string;
-	location: string;
-	type: EntryType;
-	highlights: string[];
-}
-
-const ENTRIES: Entry[] = [
-	{
-		role: "Programming Lead",
-		org: "MSL Robotics Team",
-		period: "2025 - Present",
-		location: "Bandung, Indonesia",
-		type: "Experience",
-		highlights: [
-			"Built localization stack using AMCL with encoder, IMU, and vision fusion.",
-			"Led perception experiments for robust sign detection and field understanding.",
-		],
-	},
-	{
-		role: "CTF Infrastructure Engineer",
-		org: "ARKAVIDIA 10",
-		period: "2026",
-		location: "Remote",
-		type: "Experience",
-		highlights: [
-			"Prepared challenge platform for 100+ teams and 300+ participants.",
-			"Monitored service health and reliability during competition peak traffic.",
-		],
-	},
-	{
-		role: "Programming Mentor",
-		org: "Student Robotics Community",
-		period: "2025 - Present",
-		location: "Bandung, Indonesia",
-		type: "Volunteer",
-		highlights: [
-			"Mentored junior members on control, perception, and debugging workflows.",
-			"Ran weekly review sessions for project structure and clean coding practice.",
-		],
-	},
-	{
-		role: "Technical Event Volunteer",
-		org: "University Engineering Events",
-		period: "2024 - 2025",
-		location: "Bandung, Indonesia",
-		type: "Volunteer",
-		highlights: [
-			"Supported workshop operations and participant onboarding for technical sessions.",
-			"Handled on-site troubleshooting for software and competition tooling.",
-		],
-	},
-];
+const MAX_EXPERIENCE_ITEMS = 2;
+const MAX_VOLUNTEER_ITEMS = 2;
 
 const EXPERIENCE_ENTRIES = ENTRIES.filter((entry) => entry.type === "Experience");
 const VOLUNTEER_ENTRIES = ENTRIES.filter((entry) => entry.type === "Volunteer");
 
-const SKILL_GROUPS = [
-	{
-		label: "Robotics",
-		items: ["ROS", "Arduino", "Linux", "C", "C++"],
-	},
-	{
-		label: "Programming Languages",
-		items: ["Python", "Rust", "Go", "JavaScript", "TypeScript", "Assembly x86"],
-	},
-	{
-		label: "Machine Learning",
-		items: ["PyTorch", "TensorFlow", "Scikit-learn", "OpenCV", "Pandas", "YOLO"],
-	},
-	{
-		label: "Backend & Databases",
-		items: [
-			"Node.js",
-			"Express",
-			"Fastify",
-			"Hono",
-			"MongoDB",
-			"PostgreSQL",
-			"MySQL",
-			"SQLite",
-			"Supabase",
-			"Firebase",
-		],
-	},
-	{
-		label: "Frontend",
-		items: ["HTML5", "CSS3", "React", "Vue.js", "Tailwind"],
-	},
-	{
-		label: "Tools",
-		items: [
-			"Git",
-			"VS Code",
-			"Docker",
-			"Kubernetes",
-			"Ansible",
-			"Proxmox",
-			"pfSense",
-			"NGINX",
-			"Tailscale",
-			"Grafana",
-			"Zod",
-			"Swagger",
-			"Prometheus",
-			"Jenkins",
-		],
-	},
-] as const;
+const EXPERIENCE_PREVIEW = EXPERIENCE_ENTRIES.slice(0, MAX_EXPERIENCE_ITEMS);
+const VOLUNTEER_PREVIEW = VOLUNTEER_ENTRIES.slice(0, MAX_VOLUNTEER_ITEMS);
+const EXPERIENCE_REMAINDER = EXPERIENCE_ENTRIES.length - MAX_EXPERIENCE_ITEMS;
+const VOLUNTEER_REMAINDER = VOLUNTEER_ENTRIES.length - MAX_VOLUNTEER_ITEMS;
 
 const Section = styled.section`
 	position: relative;
@@ -164,11 +63,11 @@ const Inner = styled.div`
 	}
 `;
 
-const Header = styled.div`
+const HeaderRow = styled.div`
+	position: relative;
 	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 0.8rem;
+	justify-content: center;
+	align-items: baseline;
 `;
 
 const Title = styled.h2`
@@ -188,6 +87,41 @@ const Title = styled.h2`
 		background: var(--text-primary);
 		opacity: 0.35;
 		border-radius: 2px;
+	}
+`;
+
+const SeeAll = styled(Link)`
+	position: absolute;
+	right: 0;
+	bottom: 0.2rem;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	font-family: 'DM Mono', monospace;
+	font-size: 0.72rem;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--text-dim);
+	text-decoration: none;
+	transition: color 0.2s;
+
+	svg {
+		width: 11px;
+		height: 11px;
+		stroke: currentColor;
+		fill: none;
+		stroke-width: 2;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+		transition: transform 0.2s;
+	}
+
+	&:hover {
+		color: var(--text-primary);
+
+		svg {
+			transform: translate(2px, -2px);
+		}
 	}
 `;
 
@@ -374,6 +308,20 @@ const HighlightList = styled.ul`
 	}
 `;
 
+const AndOthers = styled.p`
+	font-family: 'DM Mono', monospace;
+	font-size: 0.7rem;
+	letter-spacing: 0.06em;
+	color: var(--text-dim);
+	margin: 0;
+	padding-top: 0.2rem;
+
+	strong {
+		color: var(--text-primary);
+		font-weight: 500;
+	}
+`;
+
 const renderEntries = (entries: Entry[]) =>
 	entries.map((entry) => (
 		<Item key={`${entry.role}-${entry.org}-${entry.period}`}>
@@ -412,19 +360,36 @@ export function Experiences() {
 			<Grain />
 
 			<Inner>
-				<Header>
+				<HeaderRow>
 					<Title>Experience & Volunteer</Title>
-				</Header>
+					<SeeAll to="/experiences" aria-label="See all experiences and volunteer history">
+						See All
+						<svg viewBox="0 0 12 12" aria-hidden="true">
+							<line x1="2" y1="10" x2="10" y2="2" />
+							<polyline points="5,2 10,2 10,7" />
+						</svg>
+					</SeeAll>
+				</HeaderRow>
 
 				<Groups>
 					<Group>
 						<GroupTitle>Experience</GroupTitle>
-						<List>{renderEntries(EXPERIENCE_ENTRIES)}</List>
+						<List>{renderEntries(EXPERIENCE_PREVIEW)}</List>
+						{EXPERIENCE_REMAINDER > 0 && (
+							<AndOthers>
+								and <strong>{EXPERIENCE_REMAINDER} others</strong>
+							</AndOthers>
+						)}
 					</Group>
 
 					<Group>
 						<GroupTitle>Volunteer</GroupTitle>
-						<List>{renderEntries(VOLUNTEER_ENTRIES)}</List>
+						<List>{renderEntries(VOLUNTEER_PREVIEW)}</List>
+						{VOLUNTEER_REMAINDER > 0 && (
+							<AndOthers>
+								and <strong>{VOLUNTEER_REMAINDER} others</strong>
+							</AndOthers>
+						)}
 					</Group>
 				</Groups>
 
