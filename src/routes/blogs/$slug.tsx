@@ -2,7 +2,6 @@ import React from 'react'
 import { createFileRoute, notFound } from '@tanstack/react-router'
 import { styled } from '@linaria/react'
 import { BLOGS } from '../../content/blogs'
-import { Navbar } from '../../components/Navbar.tsx'
 
 const POST_MODULES: Record<string, () => Promise<{ default: React.ComponentType }>> = {
   'setting-up-arkavidia-ctf': () =>
@@ -31,7 +30,7 @@ function BlogPost() {
 
   return (
     <Page>
-      <Navbar/>
+      
       <Header>
         <TagList>
           {meta.tags.map((t) => <Tag key={t}>{t}</Tag>)}
