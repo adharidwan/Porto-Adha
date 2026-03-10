@@ -1,1 +1,53 @@
-On February 1st 2026, Capture The Flag Competition in ARKAVIDIA 10 was held online, hosting more than 100 teams and 300+ players!
+---
+title: "Setting Up CTF Platform for ARKAVIDIA 10"
+date: "2026-02-01"
+tags:
+  - CTF
+  - Infrastructure
+  - DevOps
+preview: "How we prepared infrastructure, challenge flow, and stability practices for a 100+ team online CTF event."
+---
+
+# Setting Up CTF Platform for ARKAVIDIA 10
+
+On February 1st, 2026, ARKAVIDIA 10 hosted an online Capture The Flag competition with more than 100 teams and 300+ participants. This post summarizes the setup decisions that kept the event stable under concurrent load.
+
+## 1. Infrastructure Layout
+
+The platform stack was split into separate services:
+
+- Scoreboard application
+- Challenge API gateway
+- Isolated challenge containers
+- Monitoring and logging layer
+
+This separation reduced blast radius when one service degraded.
+
+## 2. Challenge Delivery Flow
+
+Each challenge was versioned and deployed as immutable artifacts, then exposed through a controlled endpoint.
+
+The core flow was:
+
+1. Team requests challenge instance.
+2. Backend provisions a sandbox.
+3. Team submits flag to scorer endpoint.
+4. Scoreboard verifies and updates rank.
+
+## 3. Reliability Controls
+
+Several controls were used to keep the platform responsive during peak traffic:
+
+- Request rate limiting on critical endpoints
+- Health checks for auto-restart of unhealthy containers
+- Warm standby capacity for sudden team spikes
+- Real-time dashboards for CPU, memory, and error rates
+
+## 4. Event-Day Lessons
+
+Two lessons mattered most:
+
+- Keep deployment rollback simple and quick.
+- Treat observability as a first-class feature, not an add-on.
+
+With these practices, the platform remained reliable throughout the competition window and gave teams a smooth experience.

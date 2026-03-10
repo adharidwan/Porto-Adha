@@ -2,6 +2,8 @@ import { defineConfig } from 'vite'
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import linaria from '@linaria/vite'
 import mdx from '@mdx-js/rollup'
+import remarkFrontmatter from 'remark-frontmatter'
+import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
 import remarkMath from 'remark-math'
 import remarkGfm from 'remark-gfm'
 import rehypeKatex from 'rehype-katex'
@@ -17,7 +19,13 @@ export default defineConfig({
     {
       enforce: 'pre',
       ...mdx({
-        remarkPlugins: [remarkMath, remarkGfm],
+        exclude: [/\.mdx\?raw$/],
+        remarkPlugins: [
+          remarkFrontmatter,
+          [remarkMdxFrontmatter, { name: 'frontmatter' }],
+          remarkMath,
+          remarkGfm,
+        ],
         rehypePlugins: [
           rehypeKatex,
           [rehypePrettyCode, { theme: 'github-dark' }],

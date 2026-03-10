@@ -17,7 +17,7 @@ const Section = styled.section`
     color-mix(in srgb, var(--hero-bg-4) 80%, var(--bg-elevated)) 100%
   );
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   overflow: hidden;
 `;
 
@@ -178,6 +178,13 @@ const CardDate = styled.span`
   color: color-mix(in srgb, var(--text-dim) 70%, transparent);
 `;
 
+const Dot = styled.span`
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  color: color-mix(in srgb, var(--text-dim) 70%, transparent);
+`;
+
 const TagList = styled.div`
   display: flex;
   gap: 0.4rem;
@@ -257,12 +264,18 @@ export function Blogs() {
               key={p.slug}
               to="/blogs/$slug"
               params={{ slug: p.slug }}
-              aria-label={p.name}
+              aria-label={p.title}
             >
-              <CardName className="card-title">{p.name}</CardName>
-              <CardDesc>{p.desc}</CardDesc>
+              <CardName className="card-title">{p.title}</CardName>
+              <CardDesc>{p.preview || p.desc}</CardDesc>
               <CardMeta>
                 {p.date && <CardDate>{p.date}</CardDate>}
+                {p.readingTime && (
+                  <>
+                    <Dot>•</Dot>
+                    <CardDate>{p.readingTime}</CardDate>
+                  </>
+                )}
                 {p.tags?.length > 0 && (
                   <TagList>
                     {p.tags.map((tag) => (

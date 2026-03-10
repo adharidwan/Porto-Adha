@@ -117,6 +117,12 @@ const ItemDate = styled.time`
   color: var(--text-dim);
 `;
 
+const Dot = styled.span`
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+`;
+
 const TagRow = styled.div`
   display: flex;
   gap: 0.3rem;
@@ -193,14 +199,18 @@ export function AllBlogs() {
               >
                 <ItemMeta>
                   <ItemDate>{blog.date}</ItemDate>
-                  <TagRow>
-                    {blog.tags.map((t) => (
-                      <Tag key={t}>{t}</Tag>
-                    ))}
-                  </TagRow>
+                  <Dot>•</Dot>
+                  <ItemDate>{blog.readingTime}</ItemDate>
+                  {blog.tags.length > 0 && (
+                    <TagRow>
+                      {blog.tags.map((t) => (
+                        <Tag key={t}>{t}</Tag>
+                      ))}
+                    </TagRow>
+                  )}
                 </ItemMeta>
-                <ItemName>{blog.name}</ItemName>
-                <ItemDesc>{blog.desc}</ItemDesc>
+                <ItemName>{blog.title}</ItemName>
+                <ItemDesc>{blog.preview || blog.desc}</ItemDesc>
               </Item>
             ))
           )}
