@@ -1,5 +1,6 @@
 /* ── Google Fonts ─────────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,600&display=swap');
+@import url('https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 

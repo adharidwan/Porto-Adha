@@ -1,0 +1,225 @@
+# FIRA Robot Vision Pipeline
+
+In the FIRA robot soccer environment, the vision system must process images quickly and reliably to detect objects such as the ball, field lines, and goals. To achieve this, a structured vision pipeline is used to transform raw camera images into useful features.
+
+The pipeline consists of the following stages:
+
+1. Camera Undistortion
+2. Region of Interest (ROI) Cropping
+3. Grayscale Conversion
+4. Canny Edge Detection
+
+Each stage progressively reduces noise and extracts meaningful information from the image.
+
+---
+
+## 1. Camera Undistortion
+
+Most robot cameras use wide-angle lenses, which introduce **radial and tangential distortion**. This distortion bends straight lines and affects geometric accuracy. Before any processing step, the image must be corrected.
+
+The radial distortion model is commonly expressed as
+
+$$
+x_{corrected} = x(1 + k_1 r^2 + k_2 r^4 + k_3 r^6)
+$$
+
+$$
+y_{corrected} = y(1 + k_1 r^2 + k_2 r^4 + k_3 r^6)
+$$
+
+where
+
+* ( (x, y) ) are normalized image coordinates
+* ( r^2 = x^2 + y^2 )
+* ( k_1, k_2, k_3 ) are radial distortion coefficients
+
+The corrected pixel coordinates are projected back to the image plane using the intrinsic camera matrix
+
+$$
+K =
+\begin{bmatrix}
+f_x & 0 & c_x \
+0 & f_y & c_y \
+0 & 0 & 1
+\end{bmatrix}
+$$
+
+Example implementation:
+
+```python
+undistorted = cv2.undistort(image, K, dist_coeffs)
+```
+
+This step ensures that straight field lines remain straight and spatial measurements remain accurate.
+
+---
+
+## 2. Region of Interest (ROI)
+
+After undistortion, only a portion of the frame is relevant for robot soccer perception. The upper part of the image may contain irrelevant objects such as walls or spectators.
+
+To reduce computational load, a **Region of Interest (ROI)** is defined:
+
+$$
+I_{ROI} = I[y_{min}:y_{max},\ x_{min}:x_{max}]
+$$
+
+This cropping operation limits processing to the field area where objects of interest appear.
+
+Example:
+
+```python
+roi = undistorted[y_min:y_max, x_min:x_max]
+```
+
+Advantages of ROI cropping:
+
+* Reduces processing time
+* Removes irrelevant visual data
+* Focuses computation on the playing field
+
+---
+
+## 3. Grayscale Conversion
+
+Most edge detection algorithms operate on a single intensity channel. Therefore, the ROI image is converted from RGB into grayscale.
+
+The grayscale intensity is computed using a weighted sum:
+
+$$
+I = 0.299R + 0.587G + 0.114B
+$$
+
+where
+
+* (R) is the red channel
+* (G) is the green channel
+* (B) is the blue channel
+
+This weighting reflects human visual sensitivity to different wavelengths.
+
+Example:
+
+```python
+gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+```
+
+Reducing the image to one channel simplifies later operations without losing structural information needed for edge detection.
+
+---
+
+## 4. Canny Edge Detection
+
+The final stage extracts edges using the **Canny Edge Detector**, a widely used algorithm in computer vision and robotics.
+
+The algorithm consists of several steps.
+
+### 4.1 Gaussian Smoothing
+
+Before computing gradients, the image is smoothed to remove noise using a Gaussian filter:
+
+$$
+G(x,y) =
+\frac{1}{2\pi\sigma^2}
+e^{-\frac{x^2 + y^2}{2\sigma^2}}
+$$
+
+This reduces the likelihood of detecting false edges.
+
+---
+
+### 4.2 Gradient Computation
+
+Edge detection relies on detecting strong intensity gradients. These gradients are computed using Sobel operators.
+
+$$
+G_x =
+\begin{bmatrix}
+-1 & 0 & 1 \
+-2 & 0 & 2 \
+-1 & 0 & 1
+\end{bmatrix}
+\qquad
+G_y =
+\begin{bmatrix}
+1 & 2 & 1 \
+0 & 0 & 0 \
+-1 & -2 & -1
+\end{bmatrix}
+$$
+
+The gradient magnitude is calculated as
+
+$$
+G = \sqrt{G_x^2 + G_y^2}
+$$
+
+and the gradient direction
+
+$$
+\theta = \tan^{-1}\left(\frac{G_y}{G_x}\right)
+$$
+
+---
+
+### 4.3 Non-Maximum Suppression
+
+This stage thins edges by preserving only local maxima along the gradient direction. Pixels that are not the strongest response in their direction are suppressed.
+
+---
+
+### 4.4 Double Threshold and Edge Tracking
+
+The final step classifies edges using two thresholds:
+
+* High threshold (T_H)
+* Low threshold (T_L)
+
+Pixels are categorized as
+
+* **Strong edges** if (G > T_H)
+* **Weak edges** if (T_L < G \le T_H)
+
+Weak edges connected to strong edges are preserved, while isolated weak edges are discarded.
+
+Example implementation:
+
+```python
+edges = cv2.Canny(gray, threshold1, threshold2)
+```
+
+---
+
+## Final Pipeline
+
+The entire vision pipeline can be summarized as
+
+$$
+I_{edges} =
+\text{Canny}
+(
+\text{Grayscale}
+(
+\text{ROI}
+(
+\text{Undistort}(I_{raw})
+)
+)
+)
+$$
+
+---
+
+## Summary
+
+The robot vision pipeline transforms raw camera images into structural edge features through sequential processing stages.
+
+| Stage                | Purpose                    |
+| -------------------- | -------------------------- |
+| Undistortion         | Correct lens distortion    |
+| ROI Cropping         | Reduce computation         |
+| Grayscale            | Simplify color information |
+| Canny Edge Detection | Extract structural edges   |
+
+This modular pipeline enables efficient real-time perception, allowing the robot to detect field boundaries and other critical features during gameplay.
+
