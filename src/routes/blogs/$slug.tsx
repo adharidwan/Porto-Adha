@@ -122,6 +122,25 @@ const Prose = styled.article`
     padding-left: 1.2rem;
     font-style: italic;
   }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 0 1.2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+  }
+  th {
+    text-align: left;
+    color: var(--text-primary);
+    border-bottom: 2px solid color-mix(in srgb, var(--text-dim) 20%, transparent);
+    padding: 0.5rem 0.75rem;
+  }
+  td {
+    color: var(--text-dim);
+    border-bottom: 1px solid color-mix(in srgb, var(--text-dim) 10%, transparent);
+    padding: 0.5rem 0.75rem;
+  }
+  tr:last-child td { border-bottom: none; }
 `
 const Loading = styled.div`
   font-family: 'DM Mono', monospace;

@@ -311,7 +311,7 @@ export function Navbar() {
   return (
     <>
       <NavWrapper $scrolled={scrolled}>
-        <Logo href="#">adha.</Logo>
+        <Logo href="/">adha.</Logo>
 
         <NavCenter>
           {NAV_LINKS.map((l) => (
