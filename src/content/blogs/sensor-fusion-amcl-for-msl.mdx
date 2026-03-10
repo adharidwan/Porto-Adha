@@ -1,0 +1,186 @@
+---
+title: "Integrating Encoder, IMU, and Vision for AMCL in MSL Robots"
+date: "2026-03-10"
+tags:
+  - Robotics
+  - Localization
+  - Sensor Fusion
+preview: "A technical write-up of AMCL theory and a practical experiment to search the best fusion weights for encoder, IMU, and vision in an MSL robot."
+---
+
+# Integrating Encoder, IMU, and Vision for AMCL in MSL Robots
+
+This write-up summarizes my research on improving AMCL localization for an MSL robot by combining three sensor sources: wheel encoder, IMU, and vision.
+
+## Technical Theory
+
+Before discussing experiments, the key theory is the AMCL particle filter itself and how multi-sensor fusion changes particle weighting.
+
+### 1. AMCL as a Bayesian Estimator
+
+AMCL estimates robot pose
+
+$$
+x_t = [x, y, \theta]_t
+$$
+
+with a set of particles:
+
+$$
+\{x_t^{(i)}, w_t^{(i)}\}_{i=1}^{N}
+$$
+
+At each time step, AMCL performs:
+
+1. Prediction with motion model.
+2. Measurement update with observation model.
+3. Normalization and resampling.
+
+The posterior is approximated as:
+
+$$
+p(x_t \mid z_{1:t}, u_{1:t}) \approx \sum_{i=1}^{N} w_t^{(i)} \delta(x_t - x_t^{(i)})
+$$
+
+### 2. Motion Model: Encoder + IMU
+
+Wheel encoder gives incremental displacement and rotation from drivetrain kinematics. In practice this is smooth and high-rate, but drifts with slip and impact.
+
+IMU contributes angular velocity and orientation stability, especially for fast turn transitions where wheel-only yaw can be noisy.
+
+A simplified fused control increment can be written as:
+
+$$
+\Delta \hat{x}_t = [\Delta s, \Delta \theta]_t
+$$
+
+$$
+\Delta \theta_t = (1-\beta)\Delta \theta_{enc} + \beta\Delta \theta_{imu}
+$$
+
+where $\beta$ controls IMU influence on heading update.
+
+### 3. Measurement Model: Vision Landmarks
+
+Vision provides global correction using field lines, goals, corners, and known landmarks. Unlike dead-reckoning, vision constrains absolute pose relative to the map.
+
+Given expected measurement $\hat{z}^{(i)}$ from particle $x_t^{(i)}$ and actual observation $z_t$, the likelihood can be modeled as:
+
+$$
+p(z_t \mid x_t^{(i)}) \propto \exp\left(-\frac{1}{2}(z_t-\hat{z}^{(i)})^T R^{-1}(z_t-\hat{z}^{(i)})\right)
+$$
+
+where $R$ is measurement covariance and effectively sets vision trust.
+
+### 4. Particle Weight Update and Fusion Weights
+
+In multi-sensor form, I split the update into modality-specific likelihood terms:
+
+$$
+w_t^{(i)} \propto
+\left(p_{enc}^{(i)}\right)^{\lambda_{enc}}
+\left(p_{imu}^{(i)}\right)^{\lambda_{imu}}
+\left(p_{vis}^{(i)}\right)^{\lambda_{vis}}
+$$
+
+with
+
+$$
+\lambda_{enc}+\lambda_{imu}+\lambda_{vis}=1, \quad \lambda_k \ge 0
+$$
+
+This makes the weight search explicit: tune $(\lambda_{enc},\lambda_{imu},\lambda_{vis})$ for your field conditions.
+
+### 5. Resampling Stability and Effective Sample Size
+
+To avoid particle degeneracy, resampling is triggered from effective sample size:
+
+$$
+N_{eff} = \frac{1}{\sum_i (w_t^{(i)})^2}
+$$
+
+If $N_{eff}$ is too low, only a few particles dominate and recovery after collisions becomes poor. Good fusion weights should keep correction strong without collapsing diversity too aggressively.
+
+## Experiment: Searching the Best AMCL Sensor Weights
+
+### 1. Objective
+
+Find fusion weights that minimize localization error while preserving stability during fast motion and contact events in MSL gameplay.
+
+### 2. Setup
+
+- Platform: MSL differential-drive robot.
+- Sensors: wheel encoder, IMU, monocular vision landmarks.
+- Map: official field geometry with known landmark positions.
+- AMCL particles: fixed count across all trials.
+
+### 3. Search Space
+
+I used constrained grid search over fusion weights:
+
+$$
+\lambda_{enc},\lambda_{imu},\lambda_{vis} \in [0,1],
+\quad \lambda_{enc}+\lambda_{imu}+\lambda_{vis}=1
+$$
+
+with step size 0.1 for initial scan, then a finer local sweep around top candidates.
+
+### 4. Evaluation Metrics
+
+For each weight triple, I logged:
+
+- Mean translation error (m).
+- Mean heading error (deg).
+- Re-localization time after disturbance (s).
+- Pose jump count (number of unstable corrections).
+
+Composite score used for ranking:
+
+$$
+J = a\,E_{pos} + b\,E_{yaw} + c\,T_{relocalize} + d\,N_{jumps}
+$$
+
+with larger penalty on unstable jumps to prefer match-robust behavior.
+
+### 5. Procedure
+
+1. Reset AMCL and robot initial pose.
+2. Run predefined trajectories: straight, arc turn, fast transition, and collision recovery.
+3. Repeat runs for each weight triple.
+4. Aggregate metrics across runs.
+5. Select top candidates and run finer search around them.
+
+### 6. Result Summary
+
+A representative ranking from my experiments:
+
+| $\lambda_{enc}$ | $\lambda_{imu}$ | $\lambda_{vis}$ | Qualitative behavior |
+| --- | --- | --- | --- |
+| 0.30 | 0.20 | 0.50 | Best overall balance, fast correction with low jump rate |
+| 0.40 | 0.20 | 0.40 | Good in smooth motion, weaker recovery after contact |
+| 0.20 | 0.20 | 0.60 | Strong correction but occasional overreaction to noisy vision |
+| 0.60 | 0.20 | 0.20 | Stable short-term, drift accumulates in long runs |
+
+The best region in my logs favored moderate encoder trust, modest IMU contribution, and dominant but not extreme vision weight.
+
+### 7. Analysis
+
+- Too much encoder weight causes long-horizon drift.
+- Too much vision weight causes correction spikes when visual confidence drops.
+- IMU weight is most useful as heading stabilizer, not as dominant global correction source.
+
+This supports the theory: encoder is local continuity, IMU is rotational damping, vision is global anchor.
+
+## Practical Implementation Notes
+
+- Use confidence gates for vision updates (feature count, reprojection quality, or landmark consistency).
+- Increase process noise during high acceleration or slip-prone maneuvers.
+- Keep a fallback mode when vision is unavailable, then smoothly restore vision weight when confidence returns.
+
+## Conclusion
+
+Integrating encoder, IMU, and vision in AMCL significantly improved localization robustness for MSL conditions, especially during high-speed transitions and post-collision recovery.
+
+The main contribution of this experiment is not only finding one best weight triple, but establishing a repeatable search workflow that can be re-tuned for different lighting, field texture, and robot dynamics.
+
+Next step is adaptive weighting, where $\lambda_{vis}$ and $\lambda_{imu}$ are adjusted online from confidence signals rather than fixed constants.

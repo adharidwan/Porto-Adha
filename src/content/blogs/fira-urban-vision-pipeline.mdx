@@ -18,6 +18,7 @@ The pipeline consists of the following stages:
 2. Region of Interest (ROI) Cropping
 3. Grayscale Conversion
 4. Canny Edge Detection
+5. YOLOv11n Visual Sign Detection (research module)
 
 Each stage progressively reduces noise and extracts meaningful information from the image.
 
@@ -200,9 +201,60 @@ edges = cv2.Canny(gray, threshold1, threshold2)
 
 ---
 
+## 5. Research: YOLOv11n for Visual Sign Detection
+
+Beyond line and edge extraction, I am also researching **YOLOv11n** to detect visual signs in the urban environment, such as directional or task-related markers that may appear around the field setup.
+
+### 5.1 Why YOLOv11n
+
+YOLOv11n is a lightweight detector variant, so it is suitable for real-time robotics constraints where latency is as important as accuracy. Compared to heavier models, it offers better deployment feasibility on edge hardware with limited compute budget.
+
+### 5.2 Detection Objective
+
+The detector outputs bounding boxes, class labels, and confidence:
+
+$$
+\mathcal{D} = \{(b_i, c_i, s_i)\}_{i=1}^{N}
+$$
+
+where:
+
+* $b_i$ is bounding box
+* $c_i$ is class
+* $s_i$ is confidence score
+
+For control integration, detections are filtered by confidence threshold and temporal consistency across consecutive frames.
+
+### 5.3 Dataset and Training Direction
+
+The current research direction uses a custom dataset collected from robot camera perspective with variations in:
+
+* Illumination
+* Viewing angle
+* Motion blur during high-speed transitions
+* Partial occlusion by other robots
+
+Training focuses on robust detection for small targets under non-ideal game dynamics rather than benchmark-only accuracy.
+
+### 5.4 Integration with Existing Pipeline
+
+The sign detector is treated as a semantic branch parallel to geometric processing:
+
+1. Undistort and crop ROI.
+2. Feed RGB ROI to YOLOv11n.
+3. Use detected sign hypotheses to enrich robot state/context.
+
+In practice, this means Canny-based geometric features support localization and structure, while YOLOv11n contributes higher-level scene understanding.
+
+### 5.5 Early Observation
+
+Initial experiments show that YOLOv11n can maintain useful sign detections in real time when image quality is stable, but performance drops under heavy blur and rapid exposure changes. Current tuning is focused on thresholding, augmentation policy, and temporal smoothing of detections.
+
+---
+
 ## Final Pipeline
 
-The entire vision pipeline can be summarized as
+The geometric localization branch can be summarized as
 
 $$
 I_{edges} =
@@ -218,6 +270,12 @@ I_{edges} =
 )
 $$
 
+and the semantic sign branch as
+
+$$
+\mathcal{D}_t = \text{YOLOv11n}(\text{ROI}(\text{Undistort}(I_{raw,t})))
+$$
+
 ---
 
 ## Summary
@@ -230,6 +288,7 @@ The robot vision pipeline transforms raw camera images into structural edge feat
 | ROI Cropping         | Reduce computation         |
 | Grayscale            | Simplify color information |
 | Canny Edge Detection | Extract structural edges   |
+| YOLOv11n Detection   | Detect semantic visual signs |
 
-This modular pipeline enables efficient real-time perception, allowing the robot to detect field boundaries and other critical features during gameplay.
+This modular pipeline enables efficient real-time perception, allowing the robot to combine structural understanding (edges and lines) with semantic cues (visual signs) during gameplay.
 

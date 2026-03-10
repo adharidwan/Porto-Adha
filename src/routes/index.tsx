@@ -3,6 +3,7 @@ import { Navbar } from "../components/Navbar";
 import { Hero } from "../components/Hero";
 import { Projects } from "../components/Projects";
 import { Blogs } from  "../components/Blogs"; 
+import { Experiences } from "../components/Experiences";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -16,6 +17,7 @@ function HomePage() {
         <Hero />
         <Projects />
         <Blogs />
+        <Experiences />
       </main>
     </>
   );

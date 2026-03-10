@@ -44,7 +44,7 @@ const Section = styled.section`
     color-mix(in srgb, var(--hero-bg-4) 80%, var(--bg-elevated)) 100%
   );
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   overflow: hidden;
 `;
 
