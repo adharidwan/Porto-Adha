@@ -329,6 +329,8 @@ export function Hero() {
             <span>DevOps Engineer</span>
             <span className="sep">•</span>
             <span>Cybersecurity</span>
+            <span className="sep">•</span>
+            <span>AI/ML</span>
           </RoleRow>
 
           <Bio>
