@@ -102,6 +102,7 @@ const RoleRow = styled.p`
   letter-spacing: 0.04em;
   margin: 1.1rem 0 1.6rem;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
 
@@ -329,12 +330,14 @@ export function Hero() {
             <span>DevOps Engineer</span>
             <span className="sep">•</span>
             <span>Cybersecurity</span>
+            <span className="sep">•</span>
+            <span>AI/ML</span>
           </RoleRow>
 
           <Bio>
             A third-year <strong>Computer Science</strong> student at{" "}
             <strong>Bandung Institute of Technology</strong>, passionate about
-            cybersecurity, software development, infrastructure. alongside robotics & embedded eystem as hobby!.
+            cybersecurity, software development, infrastructure. alongside robotics & embedded system as hobby!.
           </Bio>
 
           <SocialRow>

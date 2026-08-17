@@ -11,6 +11,27 @@ export interface Entry {
 
 export const ENTRIES: Entry[] = [
   {
+    role: "Software Engineer Intern",
+    org: "OpenWay",
+    period: "June 2026 - Present",
+    location: "BSD, Indonesia (Hybrid)",
+    type: "Experience",
+    highlights: [
+      "Deepened domain knowledge in core banking architectures, digital payment systems, and transaction lifecycles.",
+      "Explored reliable payment processing pipelines, financial messaging protocols, and enterprise software practices.",
+    ],
+  },
+  {
+    role: "Cybersecurity Research Assistant",
+    org: "Institut Teknologi Bandung",
+    period: "2025 - Present",
+    location: "Bandung, Indonesia",
+    type: "Experience",
+    highlights: [
+      "Supervised by Ir. Yudistira Dwi Wardhana Asnar, S.T., Ph.D. and Galuh Dipa Bharata, S.T., M.T.",
+    ],
+  },
+  {
     role: "Programming Lead",
     org: "DAGOZILLA Autonomous Robotics Team",
     period: "2025 - Present",
@@ -75,7 +96,7 @@ export const SKILL_GROUPS = [
   },
   {
     label: "Programming Languages",
-    items: ["Python", "Rust", "Go", "JavaScript", "TypeScript", "Assembly x86"],
+    items: ["Java", "Python", "Rust", "Go", "JavaScript", "TypeScript", "Assembly x86"],
   },
   {
     label: "Machine Learning",
@@ -84,6 +105,7 @@ export const SKILL_GROUPS = [
   {
     label: "Backend & Databases",
     items: [
+      "Spring Boot",
       "Node.js",
       "Express",
       "Fastify",
@@ -111,6 +133,9 @@ export const SKILL_GROUPS = [
       "VS Code",
       "Docker",
       "Kubernetes",
+      "TeamCity",
+      "Jira",
+      "Jenkins",
       "Ansible",
       "Proxmox",
       "pfSense",
@@ -120,7 +145,6 @@ export const SKILL_GROUPS = [
       "Zod",
       "Swagger",
       "Prometheus",
-      "Jenkins",
     ],
   },
 ] as const;
